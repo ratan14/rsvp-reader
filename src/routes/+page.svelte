@@ -136,7 +136,7 @@
 
 <div class="max-w-2xl mx-auto p-8">
 	<div class="text-center mb-12">
-		<h1 class="text-3xl font-bold mb-2" style="color: var(--text);">RSVP Reader</h1>
+		<h1 class="text-3xl font-bold mb-2" style="color: var(--text);">Flowvea</h1>
 		<p style="color: var(--text-muted);">Speed read any text, one word at a time</p>
 	</div>
 
