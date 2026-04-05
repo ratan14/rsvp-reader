@@ -129,10 +129,10 @@
 	}
 	.joystick-track.vertical {
 		width: 26px;
-		height: 90px;
+		height: 140px;
 	}
 	.joystick-track.horizontal {
-		width: 120px;
+		width: 180px;
 		height: 24px;
 	}
 	.joystick-center {

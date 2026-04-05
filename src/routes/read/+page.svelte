@@ -7,7 +7,7 @@
 	import { createLibraryStore } from '$lib/storage/library.svelte';
 	import { createPreferencesStore } from '$lib/storage/preferences.svelte';
 	import { createThemeStore } from '$lib/theme/theme.svelte';
-	import { createMobileDetector } from '$lib/mobile.svelte';
+	import { createLayoutDetector } from '$lib/layout.svelte';
 	import WpmJoystick from '$lib/components/WpmJoystick.svelte';
 	import type { LibraryEntry, Chapter } from '$lib/types';
 
@@ -24,7 +24,7 @@
 	let showInfoBar = $state(false);
 	let infoBarTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	const mobile = createMobileDetector();
+	const layout = createLayoutDetector();
 
 	let currentChapter = $derived.by(() => {
 		if (!entry?.chapters || !engine.currentToken) return '';
@@ -81,7 +81,7 @@
 	onDestroy(() => {
 		saveProgress();
 		engine.destroy();
-		mobile.destroy();
+		layout.destroy();
 		if (saveInterval) clearInterval(saveInterval);
 		if (pulseTimeout) clearTimeout(pulseTimeout);
 		if (infoBarTimeout) clearTimeout(infoBarTimeout);
@@ -199,14 +199,12 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div
-	class="h-screen flex select-none relative"
-	class:flex-col={!mobile.isMobile || !mobile.isLandscape}
-	class:flex-row={mobile.isMobile && mobile.isLandscape}
+	class="h-screen flex flex-col select-none relative"
 	style="background-color: var(--bg);"
 	onwheel={handleWheel}
 >
-	{#if !mobile.isMobile}
-		<!-- Desktop: Info bar always visible -->
+	<!-- Info bar: always visible on large screens, tap-to-reveal on small -->
+	{#if !layout.isSmall}
 		<div
 			class="flex justify-between items-center px-4 py-2 text-xs"
 			style="color: var(--text-muted); border-bottom: 1px solid var(--border);"
@@ -215,25 +213,19 @@
 				onclick={exit}
 				class="cursor-pointer bg-transparent border-none text-xs"
 				style="color: var(--text-muted);"
-			>
-				&larr; Back
-			</button>
+			>&larr; Back</button>
 			<span>{currentChapter}</span>
 			<div class="flex gap-4 items-center">
 				<span>{progressPercent}%</span>
 				<span
 					class="transition-all duration-150"
 					style="font-size: {wpmPulse ? '16px' : '12px'}; font-weight: {wpmPulse ? 'bold' : 'normal'}; color: {wpmPulse ? 'var(--accent)' : 'var(--text-muted)'};"
-				>
-					{engine.wpm} WPM
-				</span>
+				>{engine.wpm} WPM</span>
 				<button
 					onclick={() => theme.toggle()}
 					class="cursor-pointer bg-transparent border-none text-xs"
 					style="color: var(--text-muted);"
-				>
-					{theme.current === 'dark' ? '☀' : '☾'}
-				</button>
+				>{theme.current === 'dark' ? '☀' : '☾'}</button>
 			</div>
 		</div>
 	{/if}
@@ -245,30 +237,25 @@
 	{/if}
 
 	<!-- Main content area -->
-	<div
-		class="flex-1 flex min-h-0"
-		class:flex-col={!mobile.isMobile || !mobile.isLandscape}
-	>
+	<div class="flex-1 flex min-h-0" class:flex-col={!layout.isWide}>
 		<!-- Word Display Area -->
 		<div
 			class="flex-1 flex items-center justify-center overflow-hidden relative"
-			onclick={mobile.isMobile ? toggleInfoBar : undefined}
-			role={mobile.isMobile ? 'button' : undefined}
-			tabindex={mobile.isMobile ? 0 : undefined}
+			onclick={layout.isSmall ? toggleInfoBar : undefined}
+			role={layout.isSmall ? 'button' : undefined}
+			tabindex={layout.isSmall ? 0 : undefined}
 		>
-			<!-- Mobile: overlay info bar -->
-			{#if mobile.isMobile && showInfoBar}
+			<!-- Small screen: overlay info bar on tap -->
+			{#if layout.isSmall && showInfoBar}
 				<div
-					class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 py-2 text-xs z-10 transition-opacity duration-200"
+					class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 py-2 text-xs z-10"
 					style="background-color: rgba(26,26,46,0.9); color: var(--text-muted); backdrop-filter: blur(4px);"
 				>
 					<button
 						onclick={exitStopPropagation}
 						class="cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] flex items-center justify-center text-xs"
 						style="color: var(--text-muted);"
-					>
-						&larr; Back
-					</button>
+					>&larr; Back</button>
 					<span class="truncate mx-2">{currentChapter}</span>
 					<div class="flex gap-3 items-center">
 						<span>{progressPercent}%</span>
@@ -277,76 +264,40 @@
 							onclick={toggleThemeStopPropagation}
 							class="cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] flex items-center justify-center text-xs"
 							style="color: var(--text-muted);"
-						>
-							{theme.current === 'dark' ? '☀' : '☾'}
-						</button>
+						>{theme.current === 'dark' ? '☀' : '☾'}</button>
 					</div>
 				</div>
 			{/if}
 
-			<div class="relative" style="width: 100%; height: 120px;">
-				<div class="absolute left-1/2 -translate-x-1/2" style="color: var(--accent); top: 0; font-size: 14px;">
-					▼
+			<!-- Word with ORP centering -->
+			<div class="flex flex-col items-center" style="width: 100%;">
+				<div style="color: var(--accent); font-size: 14px;">▼</div>
+				<div class="relative" style="width: 100%;">
+					<div
+						class="whitespace-nowrap font-bold"
+						style="font-size: var(--word-font-size, 60px); line-height: 1.4; font-family: 'Courier New', Courier, monospace; position: relative; left: 50%; transform: translateX(calc(-0.5ch - {orpParts.before.length}ch));"
+					>
+						<span style="color: var(--text-muted);">{orpParts.before}</span><span style="color: var(--accent);">{orpParts.focus}</span><span style="color: var(--text-muted);">{orpParts.after}</span>
+					</div>
 				</div>
-				<div
-					class="absolute whitespace-nowrap font-bold"
-					style="font-size: var(--word-font-size, 60px); line-height: 1.2; font-family: 'Courier New', Courier, monospace; top: 24px; left: 50%; transform: translateX(calc(-0.5ch - {orpParts.before.length}ch));"
-				>
-					<span style="color: var(--text-muted);">{orpParts.before}</span><span style="color: var(--accent);">{orpParts.focus}</span><span style="color: var(--text-muted);">{orpParts.after}</span>
-				</div>
-				<div class="absolute left-1/2 -translate-x-1/2" style="color: var(--accent); bottom: 0; font-size: 14px;">
-					▲
-				</div>
+				<div style="color: var(--accent); font-size: 14px;">▲</div>
 			</div>
 		</div>
 
-		<!-- Controls section -->
-		{#if mobile.isMobile && mobile.isLandscape}
-			<!-- LANDSCAPE: Right-side control panel -->
+		{#if layout.isWide}
+			<!-- WIDE: Right-side panel (WPM + joystick) -->
 			<div
-				class="flex flex-col items-center justify-center gap-2 py-2 px-2"
-				style="width: 120px; background-color: var(--bg-surface); border-left: 1px solid var(--border);"
+				class="flex flex-col items-center justify-center gap-2 py-2 px-2 shrink-0"
+				style="width: 80px; background-color: var(--bg-surface); border-left: 1px solid var(--border);"
 			>
-				<!-- WPM value -->
 				<div class="text-center">
-					<div class="text-[22px] font-bold" style="color: var(--accent);">{engine.wpm}</div>
-					<div class="text-[9px] tracking-widest" style="color: var(--text-muted);">WPM</div>
+					<div class="text-base font-bold" style="color: var(--accent);">{engine.wpm}</div>
+					<div class="text-[8px] tracking-widest" style="color: var(--text-muted);">WPM</div>
 				</div>
-
-				<!-- Vertical joystick -->
 				<WpmJoystick orientation="vertical" wpm={engine.wpm} onWpmChange={handleJoystickWpm} />
-
-				<!-- Transport buttons -->
-				<div class="flex gap-3 items-center">
-					<button
-						onclick={() => engine.skipBack(1)}
-						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
-						aria-label="Skip back"
-					>
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
-					</button>
-					<button
-						onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
-						aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-					>
-						{#if engine.status === 'playing'}
-							<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
-						{:else}
-							<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
-						{/if}
-					</button>
-					<button
-						onclick={() => engine.skipForward(1)}
-						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
-						aria-label="Skip forward"
-					>
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
-					</button>
-				</div>
 			</div>
 		{:else}
-			<!-- PORTRAIT + DESKTOP: Controls below -->
+			<!-- TALL: Controls below -->
 			<div style="border-top: 1px solid var(--border);">
 				<!-- Progress Bar -->
 				<div
@@ -362,90 +313,88 @@
 					></div>
 				</div>
 
-				{#if mobile.isMobile}
-					<!-- Mobile portrait: SVG triangle buttons -->
-					<div class="flex justify-center items-center gap-6 pb-3">
-						<button
-							onclick={() => engine.skipBack(1)}
-							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
-							aria-label="Skip back"
-						>
-							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
-						</button>
-						<button
-							onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
-							aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-						>
-							{#if engine.status === 'playing'}
-								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
-							{:else}
-								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
-							{/if}
-						</button>
-						<button
-							onclick={() => engine.skipForward(1)}
-							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
-							aria-label="Skip forward"
-						>
-							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
-						</button>
-					</div>
+				<!-- Transport buttons -->
+				<div class="flex justify-center items-center gap-6 pb-3">
+					<button
+						onclick={() => engine.skipBack(1)}
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
+						aria-label="Skip back"
+					>
+						<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
+					</button>
+					<button
+						onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
+						aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
+					>
+						{#if engine.status === 'playing'}
+							<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+						{:else}
+							<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
+						{/if}
+					</button>
+					<button
+						onclick={() => engine.skipForward(1)}
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
+						aria-label="Skip forward"
+					>
+						<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
+					</button>
+				</div>
 
-					<!-- Horizontal joystick + WPM -->
-					<div class="flex flex-col items-center gap-2 pb-4">
-						<WpmJoystick orientation="horizontal" wpm={engine.wpm} onWpmChange={handleJoystickWpm} />
-						<div class="text-sm" style="color: var(--text-muted);">
-							<span class="text-lg font-bold" style="color: var(--accent);">{engine.wpm}</span> WPM
-						</div>
+				<!-- Horizontal joystick + WPM -->
+				<div class="flex flex-col items-center gap-2 pb-4">
+					<WpmJoystick orientation="horizontal" wpm={engine.wpm} onWpmChange={handleJoystickWpm} />
+					<div class="text-sm" style="color: var(--text-muted);">
+						<span class="text-lg font-bold" style="color: var(--accent);">{engine.wpm}</span> WPM
 					</div>
-				{:else}
-					<!-- Desktop: SVG triangle controls -->
-					<div class="flex justify-center items-center gap-8 pb-6">
-						<button
-							onclick={() => engine.skipBack(1)}
-							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
-							aria-label="Skip back"
-						>
-							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
-						</button>
-						<button
-							onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
-							aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-						>
-							{#if engine.status === 'playing'}
-								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
-							{:else}
-								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
-							{/if}
-						</button>
-						<button
-							onclick={() => engine.skipForward(1)}
-							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
-							aria-label="Skip forward"
-						>
-							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
-						</button>
-					</div>
-				{/if}
+				</div>
 			</div>
 		{/if}
 	</div>
 
-	<!-- Landscape: progress bar at bottom of word area -->
-	{#if mobile.isMobile && mobile.isLandscape}
-		<div
-			class="absolute bottom-2 left-4 right-[128px] cursor-pointer rounded-full"
-			style="background-color: var(--border); height: 6px;"
-			role="progressbar"
-			aria-valuenow={progressPercent}
-			onclick={handleProgressClick}
-		>
+	<!-- Wide layout: transport + progress bar overlaid at bottom of word area -->
+	{#if layout.isWide}
+		<div class="absolute bottom-0 left-0 right-[88px] flex items-center gap-4 px-4 pb-2">
+			<div class="flex gap-3 items-center">
+				<button
+					onclick={() => engine.skipBack(1)}
+					class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
+					aria-label="Skip back"
+				>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
+				</button>
+				<button
+					onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
+					class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
+					aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
+				>
+					{#if engine.status === 'playing'}
+						<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+					{:else}
+						<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
+					{/if}
+				</button>
+				<button
+					onclick={() => engine.skipForward(1)}
+					class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
+					aria-label="Skip forward"
+				>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
+				</button>
+			</div>
 			<div
-				class="rounded-full transition-all duration-100 h-full"
-				style="background-color: var(--accent); width: {engine.progress * 100}%;"
-			></div>
+				class="flex-1 cursor-pointer rounded-full"
+				style="background-color: var(--border); height: 6px;"
+				role="progressbar"
+				aria-valuenow={progressPercent}
+				onclick={handleProgressClick}
+			>
+				<div
+					class="rounded-full transition-all duration-100 h-full"
+					style="background-color: var(--accent); width: {engine.progress * 100}%;"
+				></div>
+			</div>
 		</div>
 	{/if}
 </div>

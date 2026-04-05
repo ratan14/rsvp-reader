@@ -1,0 +1,86 @@
+<h2>Transport Button Styles</h2>
+<p class="subtitle">Pick a simpler style for play, skip back, skip forward</p>
+
+<div class="cards" style="grid-template-columns: 1fr 1fr;">
+
+  <!-- Option A: Plain SVG triangles -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:32px;display:flex;justify-content:center;align-items:center;gap:24px;min-height:120px;">
+      <!-- Skip back -->
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11,19 2,12 11,5" fill="#888"/>
+        <polygon points="22,19 13,12 22,5" fill="#888"/>
+      </svg>
+      <!-- Play -->
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <polygon points="6,3 20,12 6,21" fill="#ff6b6b"/>
+      </svg>
+      <!-- Skip forward -->
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13,19 22,12 13,5" fill="#888"/>
+        <polygon points="2,19 11,12 2,5" fill="#888"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A. Plain SVG Triangles</h3>
+      <p>No circles, no borders. Just filled triangle shapes. Play is accent-colored and larger, skip arrows are muted and smaller. Clean and minimal.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Thin line icons -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:32px;display:flex;justify-content:center;align-items:center;gap:28px;min-height:120px;">
+      <!-- Skip back -->
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="11,17 2,12 11,7"/>
+        <polyline points="20,17 11,12 20,7"/>
+      </svg>
+      <!-- Play -->
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="6,3 20,12 6,21"/>
+      </svg>
+      <!-- Skip forward -->
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="13,17 22,12 13,7"/>
+        <polyline points="4,17 13,12 4,7"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B. Thin Outline Icons</h3>
+      <p>Stroke-only, no fill. Light and airy. Play outlined in accent, skip arrows in muted gray. Very minimal weight.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Text characters -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:32px;display:flex;justify-content:center;align-items:center;gap:32px;min-height:120px;font-family:system-ui;">
+      <span style="color:#888;font-size:28px;font-weight:300;">«</span>
+      <span style="color:#ff6b6b;font-size:44px;font-weight:300;">▶</span>
+      <span style="color:#888;font-size:28px;font-weight:300;">»</span>
+    </div>
+    <div class="card-body">
+      <h3>C. Unicode Characters</h3>
+      <p>Simple « ▶ » characters. Lightweight, no SVG needed. Play in accent, skip in muted. As minimal as it gets.</p>
+    </div>
+  </div>
+
+  <!-- Option D: Rounded rectangles with icons -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:32px;display:flex;justify-content:center;align-items:center;gap:12px;min-height:120px;">
+      <div style="padding:10px 16px;border-radius:8px;background:#252540;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#888"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
+      </div>
+      <div style="padding:12px 20px;border-radius:10px;background:#ff6b6b;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
+      </div>
+      <div style="padding:10px 16px;border-radius:8px;background:#252540;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#888"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. Pill Buttons</h3>
+      <p>Rounded rectangle backgrounds instead of circles. SVG icons inside. Play is accent-filled with white icon, skip has surface background. Slightly more structured but still clean.</p>
+    </div>
+  </div>
+
+</div>

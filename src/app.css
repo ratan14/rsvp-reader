@@ -29,15 +29,15 @@ body {
 /* Mobile: portrait phone (narrow width) */
 @media (max-width: 640px) {
 	:root {
-		--word-font-size: clamp(28px, 8vw, 48px);
+		--word-font-size: clamp(36px, 10vw, 56px);
 		--progress-height: 6px;
 	}
 }
 
 /* Mobile: landscape phone (short height) */
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 600px) and (orientation: landscape) {
 	:root {
-		--word-font-size: clamp(32px, 6vh, 44px);
+		--word-font-size: clamp(42px, 6vw, 60px);
 		--progress-height: 6px;
 	}
 }
