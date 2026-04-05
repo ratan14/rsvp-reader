@@ -76,6 +76,9 @@
 		}
 
 		saveInterval = setInterval(saveProgress, 5000);
+
+		// Request fullscreen on mobile/touch devices
+		document.documentElement.requestFullscreen?.().catch(() => {});
 	});
 
 	onDestroy(() => {
@@ -103,6 +106,7 @@
 	function exit() {
 		saveProgress();
 		engine.stop();
+		document.exitFullscreen?.().catch(() => {});
 		goto('/');
 	}
 

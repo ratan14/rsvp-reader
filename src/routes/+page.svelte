@@ -18,6 +18,19 @@
 	let loading = $state(false);
 	let dragOver = $state(false);
 
+	let recentEntries = $derived(
+		[...library.entries].sort((a, b) => b.lastRead - a.lastRead).slice(0, 3)
+	);
+
+	function sourceIcon(source: string): string {
+		switch (source) {
+			case 'file': return '📄';
+			case 'paste': return '📋';
+			case 'url': return '🔗';
+			default: return '📄';
+		}
+	}
+
 	async function handleContent(content: ContentResult, sourceRef: string) {
 		const tokens = parseText(content.text, content.chapters);
 		if (tokens.length === 0) {
@@ -193,4 +206,32 @@
 			</button>
 		</div>
 	</section>
+
+	<!-- Recent from Library -->
+	{#if recentEntries.length > 0}
+		<section class="mb-8">
+			<div class="flex justify-between items-center mb-3">
+				<h2 class="text-sm font-semibold uppercase tracking-wide" style="color: var(--text-muted);">Continue Reading</h2>
+				<a href="/library" class="text-xs" style="color: var(--accent);">View all</a>
+			</div>
+			<div class="flex flex-col gap-2">
+				{#each recentEntries as entry (entry.id)}
+					<a
+						href="/read?id={encodeURIComponent(entry.id)}"
+						class="p-3 rounded-lg border flex items-center gap-3 no-underline transition-colors"
+						style="background-color: var(--bg-surface); border-color: var(--border);"
+					>
+						<span class="text-lg">{sourceIcon(entry.source)}</span>
+						<div class="flex-1 min-w-0">
+							<div class="text-sm font-medium truncate" style="color: var(--text);">{entry.title}</div>
+							<div class="text-xs" style="color: var(--text-muted);">
+								{Math.round((entry.currentIndex / entry.totalWords) * 100)}% · {entry.totalWords} words
+							</div>
+						</div>
+						<div class="text-xs font-medium" style="color: var(--accent);">Resume</div>
+					</a>
+				{/each}
+			</div>
+		</section>
+	{/if}
 </div>
