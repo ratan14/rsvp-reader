@@ -139,4 +139,82 @@ describe('createReaderEngine', () => {
 		engine.play();
 		expect(engine.status).toBe('stopped');
 	});
+
+	it('pauses at paragraph break without changing displayed word', () => {
+		const engine = createReaderEngine();
+		const tokens: Token[] = [
+			{ text: 'hello', index: 0, orp: 0 },
+			{ text: '', index: 1, orp: 0, isParagraphBreak: true },
+			{ text: 'world', index: 2, orp: 0 },
+		];
+		engine.loadTokens(tokens);
+		engine.wpm = 300;
+		engine.variableSpeed = false;
+		engine.pauseAtPunctuation = false;
+		engine.play();
+
+		// After first word delay (200ms), should advance past paragraph break
+		vi.advanceTimersByTime(200);
+		// Now at paragraph break (index 1), word display should still be previous
+		// After paragraph delay (360ms), should be at 'world'
+		vi.advanceTimersByTime(360);
+		expect(engine.currentWord).toBe('world');
+	});
+
+	it('skipForward skips over paragraph tokens', () => {
+		const engine = createReaderEngine();
+		const tokens: Token[] = [
+			{ text: 'hello', index: 0, orp: 0 },
+			{ text: '', index: 1, orp: 0, isParagraphBreak: true },
+			{ text: 'world', index: 2, orp: 0 },
+		];
+		engine.loadTokens(tokens);
+		engine.skipForward(1);
+		// Should skip past the paragraph break to 'world'
+		expect(engine.currentWord).toBe('world');
+	});
+
+	it('skipBack skips over paragraph tokens', () => {
+		const engine = createReaderEngine();
+		const tokens: Token[] = [
+			{ text: 'hello', index: 0, orp: 0 },
+			{ text: '', index: 1, orp: 0, isParagraphBreak: true },
+			{ text: 'world', index: 2, orp: 0 },
+		];
+		engine.loadTokens(tokens);
+		engine.seekTo(1.0); // go to end
+		engine.skipBack(1);
+		// Should skip past the paragraph break to 'hello'
+		expect(engine.currentWord).toBe('hello');
+	});
+
+	it('nextSentence skips paragraph break tokens', () => {
+		const engine = createReaderEngine();
+		const tokens: Token[] = [
+			{ text: 'Hello', index: 0, orp: 0 },
+			{ text: 'world.', index: 1, orp: 0 },
+			{ text: '', index: 2, orp: 0, isParagraphBreak: true },
+			{ text: 'New', index: 3, orp: 0 },
+			{ text: 'sentence.', index: 4, orp: 0 },
+		];
+		engine.loadTokens(tokens);
+		engine.nextSentence();
+		// Should land on 'New' (index 3), not on the paragraph break
+		expect(engine.currentWord).toBe('New');
+	});
+
+	it('prevSentence skips paragraph break tokens', () => {
+		const engine = createReaderEngine();
+		const tokens: Token[] = [
+			{ text: 'First.', index: 0, orp: 0 },
+			{ text: '', index: 1, orp: 0, isParagraphBreak: true },
+			{ text: 'Second', index: 2, orp: 0 },
+			{ text: 'here.', index: 3, orp: 0 },
+		];
+		engine.loadTokens(tokens);
+		engine.seekTo(0.75); // near 'here.'
+		engine.prevSentence();
+		// Should land on 'Second' (index 2), not on the paragraph break
+		expect(engine.currentWord).toBe('Second');
+	});
 });

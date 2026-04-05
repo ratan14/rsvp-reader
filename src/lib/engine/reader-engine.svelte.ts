@@ -1,5 +1,6 @@
 import type { Token, ReaderStatus } from '$lib/types';
 import { calculateDelay } from './timing';
+import { isSentenceEnd } from './punctuation';
 
 export function createReaderEngine() {
 	let tokens = $state<Token[]>([]);
@@ -17,8 +18,18 @@ export function createReaderEngine() {
 			return;
 		}
 
-		const word = tokens[currentIndex].text;
-		const delay = calculateDelay(word, wpm, variableSpeed, pauseAtPunctuation);
+		const token = tokens[currentIndex];
+
+		if (token.isParagraphBreak) {
+			const delay = calculateDelay('', wpm, false, false, true);
+			timerId = setTimeout(() => {
+				currentIndex++;
+				scheduleNext();
+			}, delay);
+			return;
+		}
+
+		const delay = calculateDelay(token.text, wpm, variableSpeed, pauseAtPunctuation);
 
 		timerId = setTimeout(() => {
 			currentIndex++;
@@ -61,12 +72,64 @@ export function createReaderEngine() {
 		currentIndex = idx;
 	}
 
+	function skipParagraphs(idx: number, direction: 1 | -1): number {
+		while (idx >= 0 && idx < tokens.length && tokens[idx].isParagraphBreak) {
+			idx += direction;
+		}
+		if (idx < 0) return 0;
+		if (idx >= tokens.length) return tokens.length - 1;
+		return idx;
+	}
+
 	function skipForward(n: number) {
-		currentIndex = Math.min(currentIndex + n, tokens.length - 1);
+		let idx = Math.min(currentIndex + n, tokens.length - 1);
+		currentIndex = skipParagraphs(idx, 1);
 	}
 
 	function skipBack(n: number) {
-		currentIndex = Math.max(currentIndex - n, 0);
+		let idx = Math.max(currentIndex - n, 0);
+		currentIndex = skipParagraphs(idx, -1);
+	}
+
+	function nextSentence() {
+		for (let i = currentIndex; i < tokens.length; i++) {
+			if (tokens[i].isParagraphBreak) continue;
+			if (isSentenceEnd(tokens[i].text)) {
+				let next = i + 1;
+				next = skipParagraphs(next, 1);
+				if (next < tokens.length) {
+					currentIndex = next;
+				}
+				return;
+			}
+		}
+		currentIndex = tokens.length - 1;
+	}
+
+	function prevSentence() {
+		let i = currentIndex - 1;
+		while (i >= 0) {
+			if (tokens[i].isParagraphBreak) { i--; continue; }
+			if (isSentenceEnd(tokens[i].text)) {
+				if (i + 1 < currentIndex) {
+					currentIndex = skipParagraphs(i + 1, 1);
+					return;
+				}
+				i--;
+				while (i >= 0) {
+					if (tokens[i].isParagraphBreak) { i--; continue; }
+					if (isSentenceEnd(tokens[i].text)) {
+						currentIndex = skipParagraphs(i + 1, 1);
+						return;
+					}
+					i--;
+				}
+				currentIndex = 0;
+				return;
+			}
+			i--;
+		}
+		currentIndex = 0;
 	}
 
 	function destroy() {
@@ -104,6 +167,8 @@ export function createReaderEngine() {
 		seekTo,
 		skipForward,
 		skipBack,
+		nextSentence,
+		prevSentence,
 		destroy
 	};
 }
