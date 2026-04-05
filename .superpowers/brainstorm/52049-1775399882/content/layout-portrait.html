@@ -1,0 +1,89 @@
+<h2>Portrait Mode Layout</h2>
+<p class="subtitle">Phone held vertically — controls below the word display, info bar hidden until tap</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Current (Desktop-only)</div>
+    <div class="mockup-body" style="background:#1a1a2e;color:#e0e0e0;font-family:monospace;padding:0;min-height:400px;display:flex;flex-direction:column;">
+      <!-- Info bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:11px;color:#888;border-bottom:1px solid #333;">
+        <span>← Back</span>
+        <span>Chapter 3</span>
+        <span>42%</span>
+        <span style="color:#ff6b6b;">350 WPM</span>
+        <span>☀</span>
+      </div>
+      <!-- Word display -->
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;">
+        <div style="color:#888;font-size:10px;">▼</div>
+        <div style="font-size:36px;letter-spacing:2px;">
+          <span style="color:#888;">imp</span><span style="color:#ff6b6b;">o</span><span style="color:#888;">rtant</span>
+        </div>
+        <div style="color:#888;font-size:10px;">▲</div>
+      </div>
+      <!-- Progress bar -->
+      <div style="height:4px;background:#333;margin:0 12px;">
+        <div style="width:42%;height:100%;background:#ff6b6b;"></div>
+      </div>
+      <!-- Controls - small -->
+      <div style="display:flex;justify-content:center;gap:16px;padding:12px;font-size:18px;">
+        <span>⏮</span> <span>▶</span> <span>⏭</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Proposed Portrait</div>
+    <div class="mockup-body" style="background:#1a1a2e;color:#e0e0e0;font-family:monospace;padding:0;min-height:400px;display:flex;flex-direction:column;position:relative;">
+      <!-- Hidden info bar hint -->
+      <div style="text-align:center;padding:6px;font-size:9px;color:#555;letter-spacing:1px;">TAP TO SHOW INFO</div>
+      <!-- Word display - larger area -->
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;">
+        <div style="color:#888;font-size:12px;">▼</div>
+        <div style="font-size:42px;letter-spacing:2px;">
+          <span style="color:#888;">imp</span><span style="color:#ff6b6b;">o</span><span style="color:#888;">rtant</span>
+        </div>
+        <div style="color:#888;font-size:12px;">▲</div>
+      </div>
+      <!-- Progress bar -->
+      <div style="height:6px;background:#333;margin:0 12px;border-radius:3px;">
+        <div style="width:42%;height:100%;background:#ff6b6b;border-radius:3px;"></div>
+      </div>
+      <!-- Controls - bigger buttons -->
+      <div style="display:flex;justify-content:center;align-items:center;gap:24px;padding:20px;">
+        <div style="width:52px;height:52px;border-radius:50%;background:#252540;border:2px solid #444;display:flex;align-items:center;justify-content:center;font-size:20px;">⏮</div>
+        <div style="width:64px;height:64px;border-radius:50%;background:#ff6b6b;display:flex;align-items:center;justify-content:center;font-size:24px;">▶</div>
+        <div style="width:52px;height:52px;border-radius:50%;background:#252540;border:2px solid #444;display:flex;align-items:center;justify-content:center;font-size:20px;">⏭</div>
+      </div>
+      <!-- WPM display -->
+      <div style="text-align:center;padding:0 0 16px;font-size:13px;color:#888;">
+        <span style="color:#ff6b6b;font-weight:bold;">350</span> WPM
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top:32px;">Key Changes</h3>
+<div class="options">
+  <div class="option" style="cursor:default;">
+    <div class="letter" style="background:#ff6b6b;color:white;">1</div>
+    <div class="content">
+      <h3>Hidden Info Bar</h3>
+      <p>Info bar (back, chapter, progress %, theme) hidden by default. Tap anywhere on the word display area to reveal it as an overlay. Tap again or wait 3s to auto-hide.</p>
+    </div>
+  </div>
+  <div class="option" style="cursor:default;">
+    <div class="letter" style="background:#ff6b6b;color:white;">2</div>
+    <div class="content">
+      <h3>Bigger Touch Targets</h3>
+      <p>Transport buttons become 52-64px circular buttons (meeting 48px minimum tap target). Play/pause is largest and accent-colored.</p>
+    </div>
+  </div>
+  <div class="option" style="cursor:default;">
+    <div class="letter" style="background:#ff6b6b;color:white;">3</div>
+    <div class="content">
+      <h3>Thicker Progress Bar</h3>
+      <p>Progress bar grows from 4px to 6px with rounded ends for better visibility and tap-to-seek usability.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,135 @@
+<h2>WPM Control Options</h2>
+<p class="subtitle">Pick a thumb-friendly WPM control — now including the joystick concept</p>
+
+<div class="cards" style="grid-template-columns: 1fr 1fr;">
+
+  <!-- Option A: Vertical Slider -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:240px;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="position:relative;width:40px;height:180px;background:#333;border-radius:20px;overflow:visible;">
+          <div style="position:absolute;bottom:0;width:100%;height:55%;background:linear-gradient(to top, #ff6b6b, #ff8e8e);border-radius:20px;"></div>
+          <div style="position:absolute;bottom:calc(55% - 16px);left:50%;transform:translateX(-50%);width:36px;height:32px;background:white;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>
+          <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:#666;">100</div>
+          <div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:#666;">1000</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:26px;font-weight:bold;color:#ff6b6b;">350</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">WPM</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Vertical Slider</h3>
+      <p>Drag to set absolute value. Simple, familiar. Position = speed.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Plus/Minus -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:240px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:52px;height:52px;border-radius:50%;background:#252540;border:2px solid #ff6b6b;display:flex;align-items:center;justify-content:center;font-size:26px;color:#ff6b6b;font-weight:bold;">+</div>
+        <div style="text-align:center;padding:4px 0;">
+          <div style="font-size:28px;font-weight:bold;color:#ff6b6b;">350</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">WPM</div>
+        </div>
+        <div style="width:52px;height:52px;border-radius:50%;background:#252540;border:2px solid #ff6b6b;display:flex;align-items:center;justify-content:center;font-size:26px;color:#ff6b6b;font-weight:bold;">−</div>
+        <div style="font-size:8px;color:#555;margin-top:2px;">TAP ±25 · HOLD ±5</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Big +/− Buttons</h3>
+      <p>Tap for jumps, hold for fine adjustment. Zero learning curve.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Scroll Picker -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:240px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div style="width:86px;height:170px;overflow:hidden;position:relative;border-radius:12px;background:#252540;border:1px solid #444;">
+          <div style="text-align:center;padding:7px;font-size:14px;color:#555;">200</div>
+          <div style="text-align:center;padding:7px;font-size:16px;color:#666;">250</div>
+          <div style="text-align:center;padding:7px;font-size:18px;color:#777;">300</div>
+          <div style="text-align:center;padding:7px;font-size:22px;color:#ff6b6b;font-weight:bold;background:#ff6b6b11;border-top:1px solid #ff6b6b44;border-bottom:1px solid #ff6b6b44;">350</div>
+          <div style="text-align:center;padding:7px;font-size:18px;color:#777;">400</div>
+          <div style="text-align:center;padding:7px;font-size:16px;color:#666;">450</div>
+          <div style="text-align:center;padding:7px;font-size:14px;color:#555;">500</div>
+          <div style="position:absolute;top:0;left:0;right:0;height:35px;background:linear-gradient(to bottom, #252540, transparent);"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:35px;background:linear-gradient(to top, #252540, transparent);"></div>
+        </div>
+        <div style="font-size:10px;color:#888;letter-spacing:1px;margin-top:6px;">WPM</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Scroll Picker</h3>
+      <p>iOS-style swipe wheel. Momentum scrolling for quick jumps.</p>
+    </div>
+  </div>
+
+  <!-- Option D: JOYSTICK -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)" style="border:2px solid #ff6b6b44;">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:240px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <!-- Joystick track -->
+        <div style="position:relative;width:44px;height:180px;">
+          <!-- Track background -->
+          <div style="position:absolute;left:50%;transform:translateX(-50%);width:28px;height:100%;background:#252540;border-radius:14px;border:1px solid #444;"></div>
+          <!-- Rate zones - top (increase faster) -->
+          <div style="position:absolute;top:4px;left:50%;transform:translateX(-50%);width:20px;height:30px;background:linear-gradient(to bottom, #ff6b6b33, transparent);border-radius:10px 10px 0 0;"></div>
+          <!-- Rate zones - bottom (decrease faster) -->
+          <div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:20px;height:30px;background:linear-gradient(to top, #ff6b6b33, transparent);border-radius:0 0 10px 10px;"></div>
+          <!-- Center line (neutral) -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:22px;height:2px;background:#555;"></div>
+          <!-- Joystick thumb - shown displaced upward -->
+          <div style="position:absolute;top:calc(30% - 18px);left:50%;transform:translateX(-50%);width:40px;height:36px;background:linear-gradient(to bottom, #fff, #ddd);border-radius:18px;box-shadow:0 3px 10px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;">
+            <div style="width:16px;height:3px;background:#bbb;border-radius:2px;"></div>
+          </div>
+          <!-- Speed arrows top -->
+          <div style="position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:8px;color:#ff6b6b;">▲▲</div>
+          <!-- Speed arrows bottom -->
+          <div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:#ff6b6b;">▼▼</div>
+          <!-- Zone labels -->
+          <div style="position:absolute;top:14px;right:-24px;font-size:7px;color:#666;writing-mode:vertical-lr;">FAST</div>
+          <div style="position:absolute;top:50%;right:-10px;transform:translateY(-50%);font-size:7px;color:#666;">0</div>
+          <div style="position:absolute;bottom:14px;right:-24px;font-size:7px;color:#666;writing-mode:vertical-lr;">FAST</div>
+        </div>
+        <!-- Value display -->
+        <div style="text-align:left;">
+          <div style="font-size:26px;font-weight:bold;color:#ff6b6b;">350</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">WPM</div>
+          <div style="font-size:16px;color:#4ade80;margin-top:6px;">+12/s</div>
+          <div style="font-size:8px;color:#555;">RATE OF CHANGE</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. Rate Joystick <span style="font-size:11px;color:#ff6b6b;">★ NEW</span></h3>
+      <p>Spring-loaded stick resting at center (neutral). Push up → WPM increases, push down → WPM decreases. The farther from center, the faster the rate of change. Release → snaps back to center, WPM holds at current value. Like a jog shuttle on video editors.</p>
+    </div>
+  </div>
+
+</div>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:20px;">
+  <h3 style="margin:0 0 8px;">How the Joystick Works</h3>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:200px;">
+      <div style="font-size:13px;color:var(--text-muted);">
+        <strong style="color:var(--text);">At center:</strong> No change, WPM stays put<br>
+        <strong style="color:var(--text);">Slight push up:</strong> +5 WPM/sec<br>
+        <strong style="color:var(--text);">Half push up:</strong> +25 WPM/sec<br>
+        <strong style="color:var(--text);">Full push up:</strong> +100 WPM/sec<br>
+        <strong style="color:var(--text);">Release:</strong> Springs back to center
+      </div>
+    </div>
+    <div style="flex:1;min-width:200px;">
+      <div style="font-size:13px;color:var(--text-muted);">
+        <strong style="color:var(--text);">Benefit:</strong> One gesture covers both coarse and fine control<br>
+        <strong style="color:var(--text);">Metaphor:</strong> Like a jog shuttle wheel on video editing hardware<br>
+        <strong style="color:var(--text);">Thumb motion:</strong> Natural up/down in landscape right-hand grip
+      </div>
+    </div>
+  </div>
+</div>

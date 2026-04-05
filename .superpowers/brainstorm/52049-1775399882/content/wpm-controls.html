@@ -1,0 +1,120 @@
+<h2>WPM Control Options</h2>
+<p class="subtitle">Pick a thumb-friendly WPM control for the right-side panel in landscape</p>
+
+<div class="cards" style="grid-template-columns: 1fr 1fr;">
+
+  <!-- Option A: Vertical Slider -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:260px;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <!-- Slider track -->
+        <div style="position:relative;width:40px;height:200px;background:#333;border-radius:20px;overflow:visible;">
+          <!-- Fill -->
+          <div style="position:absolute;bottom:0;width:100%;height:55%;background:linear-gradient(to top, #ff6b6b, #ff8e8e);border-radius:20px;"></div>
+          <!-- Thumb -->
+          <div style="position:absolute;bottom:calc(55% - 16px);left:50%;transform:translateX(-50%);width:36px;height:32px;background:white;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>
+          <!-- Min label -->
+          <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:#666;">100</div>
+          <!-- Max label -->
+          <div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:#666;">1000</div>
+        </div>
+        <!-- Value -->
+        <div style="text-align:left;">
+          <div style="font-size:28px;font-weight:bold;color:#ff6b6b;">350</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">WPM</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Vertical Slider</h3>
+      <p>Drag thumb up/down. Natural vertical gesture for the right hand. Large thumb handle for easy grip. Fills from bottom to show relative position.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Plus/Minus with big buttons -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:260px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <!-- Plus button -->
+        <div style="width:56px;height:56px;border-radius:50%;background:#252540;border:2px solid #ff6b6b;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ff6b6b;font-weight:bold;">+</div>
+        <!-- Value -->
+        <div style="text-align:center;padding:4px 0;">
+          <div style="font-size:30px;font-weight:bold;color:#ff6b6b;">350</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">WPM</div>
+        </div>
+        <!-- Minus button -->
+        <div style="width:56px;height:56px;border-radius:50%;background:#252540;border:2px solid #ff6b6b;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ff6b6b;font-weight:bold;">−</div>
+        <!-- Step hint -->
+        <div style="font-size:8px;color:#555;margin-top:4px;">TAP ±25 · HOLD ±5</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Big +/− Buttons</h3>
+      <p>Stacked vertically: + on top, − below, value in the middle. Tap for ±25 WPM jumps, hold for fine ±5 adjustments. Dead simple, zero learning curve.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Stepper strip -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:260px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <!-- Current value -->
+        <div style="text-align:center;margin-bottom:4px;">
+          <div style="font-size:30px;font-weight:bold;color:#ff6b6b;">350</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">WPM</div>
+        </div>
+        <!-- Speed presets strip -->
+        <div style="display:flex;flex-direction:column;gap:6px;width:110px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="flex:1;height:32px;border-radius:6px;background:#252540;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">200</div>
+            <div style="flex:1;height:32px;border-radius:6px;background:#252540;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">300</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="flex:1;height:32px;border-radius:6px;background:#ff6b6b22;border:1px solid #ff6b6b;display:flex;align-items:center;justify-content:center;font-size:11px;color:#ff6b6b;font-weight:bold;">350</div>
+            <div style="flex:1;height:32px;border-radius:6px;background:#252540;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">400</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="flex:1;height:32px;border-radius:6px;background:#252540;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">500</div>
+            <div style="flex:1;height:32px;border-radius:6px;background:#252540;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">700</div>
+          </div>
+        </div>
+        <div style="font-size:8px;color:#555;margin-top:2px;">TAP PRESET · FINE-TUNE WITH ±</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Preset Grid</h3>
+      <p>Quick-select from common speeds (200, 300, 350, 400, 500, 700). Active value highlighted. Can combine with small +/− for fine-tuning between presets.</p>
+    </div>
+  </div>
+
+  <!-- Option D: Vertical scroll wheel -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:24px;display:flex;justify-content:center;align-items:center;min-height:260px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <!-- Scroll wheel -->
+        <div style="width:90px;height:180px;overflow:hidden;position:relative;border-radius:12px;background:#252540;border:1px solid #444;">
+          <!-- Faded values above -->
+          <div style="text-align:center;padding:8px;font-size:16px;color:#555;">200</div>
+          <div style="text-align:center;padding:8px;font-size:18px;color:#666;">250</div>
+          <div style="text-align:center;padding:8px;font-size:20px;color:#777;">300</div>
+          <!-- Current - highlighted -->
+          <div style="text-align:center;padding:8px;font-size:24px;color:#ff6b6b;font-weight:bold;background:#ff6b6b11;border-top:1px solid #ff6b6b44;border-bottom:1px solid #ff6b6b44;">350</div>
+          <!-- Faded values below -->
+          <div style="text-align:center;padding:8px;font-size:20px;color:#777;">400</div>
+          <div style="text-align:center;padding:8px;font-size:18px;color:#666;">450</div>
+          <div style="text-align:center;padding:8px;font-size:16px;color:#555;">500</div>
+          <!-- Gradient overlays -->
+          <div style="position:absolute;top:0;left:0;right:0;height:40px;background:linear-gradient(to bottom, #252540, transparent);"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(to top, #252540, transparent);"></div>
+        </div>
+        <div style="font-size:10px;color:#888;letter-spacing:1px;margin-top:8px;">WPM</div>
+        <div style="font-size:8px;color:#555;margin-top:4px;">SWIPE UP/DOWN</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. Scroll Picker</h3>
+      <p>iOS-style scroll wheel. Swipe up/down to change speed. Current value centered and highlighted. Neighboring values visible for context. Momentum scrolling for quick jumps.</p>
+    </div>
+  </div>
+
+</div>
