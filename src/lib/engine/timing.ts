@@ -1,29 +1,43 @@
+import { isSentenceEnd, isClauseEnd, isNumeric } from './punctuation';
+
+function tierMultiplier(length: number): number {
+	if (length <= 2) return 0.9;
+	if (length <= 8) return 1.0;
+	return 1.3;
+}
+
 /**
  * Calculate display delay in milliseconds for a word.
- * Adjusts base WPM delay by word length and punctuation.
+ * Uses research-backed tiered multipliers and punctuation pauses.
  */
 export function calculateDelay(
 	word: string,
 	wpm: number,
 	variableSpeed: boolean,
-	pauseAtPunctuation: boolean
+	pauseAtPunctuation: boolean,
+	isParagraphBreak?: boolean
 ): number {
-	let delay = Math.round(60000 / wpm);
+	const baseDelay = Math.round(60000 / wpm);
+
+	if (isParagraphBreak) {
+		return Math.round(baseDelay * 1.8);
+	}
+
+	let factor = 1.0;
 
 	if (variableSpeed) {
-		let factor = word.length / 5.0;
-		factor = Math.max(0.8, Math.min(2.0, factor));
-		delay = Math.round(delay * factor);
+		factor *= tierMultiplier(word.length);
 	}
 
 	if (pauseAtPunctuation) {
-		const lastChar = word.charAt(word.length - 1);
-		if (lastChar === '.' || lastChar === '?' || lastChar === '!') {
-			delay = Math.round(delay * 2.0);
-		} else if (lastChar === ',' || lastChar === ';' || lastChar === ':') {
-			delay = Math.round(delay * 1.5);
+		if (isSentenceEnd(word)) {
+			factor *= 2.5;
+		} else if (isClauseEnd(word)) {
+			factor *= 1.5;
+		} else if (isNumeric(word)) {
+			factor *= 1.5;
 		}
 	}
 
-	return delay;
+	return Math.round(baseDelay * factor);
 }
