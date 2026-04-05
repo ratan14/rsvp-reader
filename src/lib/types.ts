@@ -3,6 +3,7 @@ export interface Token {
 	index: number;
 	chapterIndex?: number;
 	orp: number;
+	isParagraphBreak?: boolean;
 }
 
 export interface Chapter {
