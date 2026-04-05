@@ -89,6 +89,7 @@
 		if (pulseTimeout) clearTimeout(pulseTimeout);
 		if (infoBarTimeout) clearTimeout(infoBarTimeout);
 		if (rewindTapTimeout) clearTimeout(rewindTapTimeout);
+		if (rewindResumeTimeout) clearTimeout(rewindResumeTimeout);
 	});
 
 	function saveProgress() {
@@ -191,22 +192,29 @@
 	}
 
 	let rewindTapTimeout: ReturnType<typeof setTimeout> | null = null;
-	let rewindTapCount = $state(0);
+	let rewindResumeTimeout: ReturnType<typeof setTimeout> | null = null;
+	let wasPlayingBeforeRewind = false;
 
 	function handleRewindTap() {
-		rewindTapCount++;
 		if (rewindTapTimeout) clearTimeout(rewindTapTimeout);
+		if (rewindResumeTimeout) clearTimeout(rewindResumeTimeout);
 
-		// On first tap, rewind to start of current sentence immediately
-		if (rewindTapCount === 1) {
-			engine.prevSentence();
-		} else {
-			// Each additional tap within the window goes back one more sentence
-			engine.prevSentence();
+		// Pause playback on first tap, remember if it was playing
+		if (engine.status === 'playing') {
+			wasPlayingBeforeRewind = true;
+			engine.pause();
 		}
 
+		engine.prevSentence();
+
+		// After 400ms with no more taps, wait 500ms then resume if it was playing
 		rewindTapTimeout = setTimeout(() => {
-			rewindTapCount = 0;
+			if (wasPlayingBeforeRewind) {
+				rewindResumeTimeout = setTimeout(() => {
+					engine.play();
+					wasPlayingBeforeRewind = false;
+				}, 500);
+			}
 		}, 400);
 	}
 
@@ -302,10 +310,10 @@
 					style="top: 12px; left: 15%; width: 72px; height: 72px; background-color: var(--bg-surface); border: 1px solid var(--border);"
 					aria-label="Rewind to start of sentence"
 				>
-					<!-- Double left arrow (rewind) -->
-					<svg width="36" height="36" viewBox="0 0 24 24" fill="var(--text-muted)">
-						<polygon points="11,19 2,12 11,5"/>
-						<line x1="11" y1="5" x2="11" y2="19" stroke="var(--text-muted)" stroke-width="2"/>
+					<!-- Circular rewind arrow: arc from right going counter-clockwise, arrow pointing left -->
+					<svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+						<path d="M 8 4.5 A 8.5 8.5 0 1 1 4 12" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+						<polyline points="8,1 4.5,4.5 8,8" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 					</svg>
 				</button>
 			{/if}
