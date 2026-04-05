@@ -5,11 +5,33 @@ import type { ContentResult, Chapter } from '$lib/types';
  * Extract plain text from HTML/XHTML string.
  * Uses DOMParser in browser; falls back to regex stripping.
  */
+const BLOCK_TAGS = new Set([
+	'P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+	'LI', 'TR', 'BR', 'BLOCKQUOTE', 'SECTION', 'ARTICLE',
+	'HEADER', 'FOOTER', 'DT', 'DD', 'PRE', 'FIGCAPTION'
+]);
+
 export function extractTextFromHtml(html: string): string {
 	if (!html) return '';
 	if (typeof DOMParser !== 'undefined') {
 		const doc = new DOMParser().parseFromString(html, 'text/html');
-		return doc.body?.textContent?.trim() ?? '';
+		if (!doc.body) return '';
+		// Walk the DOM and insert spaces between block elements
+		// so that adjacent <p> tags don't fuse their text together.
+		const parts: string[] = [];
+		function walk(node: Node) {
+			if (node.nodeType === 3) { // TEXT_NODE
+				const t = node.textContent ?? '';
+				if (t.trim()) parts.push(t);
+			} else if (node.nodeType === 1) { // ELEMENT_NODE
+				const el = node as Element;
+				if (BLOCK_TAGS.has(el.tagName)) parts.push(' ');
+				for (const child of el.childNodes) walk(child);
+				if (BLOCK_TAGS.has(el.tagName)) parts.push(' ');
+			}
+		}
+		walk(doc.body);
+		return parts.join('').replace(/\s+/g, ' ').trim();
 	}
 	// Fallback: strip tags with regex (for environments without DOM)
 	return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
