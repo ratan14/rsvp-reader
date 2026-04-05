@@ -88,6 +88,7 @@
 		if (saveInterval) clearInterval(saveInterval);
 		if (pulseTimeout) clearTimeout(pulseTimeout);
 		if (infoBarTimeout) clearTimeout(infoBarTimeout);
+		if (rewindTapTimeout) clearTimeout(rewindTapTimeout);
 	});
 
 	function saveProgress() {
@@ -189,6 +190,26 @@
 		pulseTimeout = setTimeout(() => { wpmPulse = false; }, 300);
 	}
 
+	let rewindTapTimeout: ReturnType<typeof setTimeout> | null = null;
+	let rewindTapCount = $state(0);
+
+	function handleRewindTap() {
+		rewindTapCount++;
+		if (rewindTapTimeout) clearTimeout(rewindTapTimeout);
+
+		// On first tap, rewind to start of current sentence immediately
+		if (rewindTapCount === 1) {
+			engine.prevSentence();
+		} else {
+			// Each additional tap within the window goes back one more sentence
+			engine.prevSentence();
+		}
+
+		rewindTapTimeout = setTimeout(() => {
+			rewindTapCount = 0;
+		}, 400);
+	}
+
 	function exitStopPropagation(e: MouseEvent) {
 		e.stopPropagation();
 		exit();
@@ -242,22 +263,6 @@
 
 	<!-- Main content area -->
 	<div class="flex-1 flex min-h-0" class:flex-col={!layout.isWide}>
-		{#if layout.isWide}
-			<!-- WIDE: Left-side play/pause button -->
-			<button
-				onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-				class="shrink-0 flex items-center justify-center cursor-pointer border-none"
-				style="width: 100px; background-color: var(--bg-surface); border-right: 1px solid var(--border);"
-				aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-			>
-				{#if engine.status === 'playing'}
-					<svg width="48" height="48" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
-				{:else}
-					<svg width="48" height="48" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
-				{/if}
-			</button>
-		{/if}
-
 		<!-- Word Display Area -->
 		<div
 			class="flex-1 flex items-center justify-center overflow-hidden relative"
@@ -287,6 +292,22 @@
 						>{theme.current === 'dark' ? '☀' : '☾'}</button>
 					</div>
 				</div>
+			{/if}
+
+			<!-- Landscape: sentence rewind button, top-left area -->
+			{#if layout.isWide}
+				<button
+					onclick={handleRewindTap}
+					class="absolute z-10 cursor-pointer border-none rounded-2xl flex items-center justify-center"
+					style="top: 12px; left: 15%; width: 72px; height: 72px; background-color: var(--bg-surface); border: 1px solid var(--border);"
+					aria-label="Rewind to start of sentence"
+				>
+					<!-- Double left arrow (rewind) -->
+					<svg width="36" height="36" viewBox="0 0 24 24" fill="var(--text-muted)">
+						<polygon points="11,19 2,12 11,5"/>
+						<line x1="11" y1="5" x2="11" y2="19" stroke="var(--text-muted)" stroke-width="2"/>
+					</svg>
+				</button>
 			{/if}
 
 			<!-- Word with ORP centering -->
@@ -375,7 +396,7 @@
 
 	<!-- Wide layout: transport + progress bar overlaid at bottom of word area -->
 	{#if layout.isWide}
-		<div class="absolute bottom-0 left-[108px] right-[108px] flex items-center gap-4 px-4 pb-2">
+		<div class="absolute bottom-0 left-0 right-[108px] flex items-center gap-4 px-4 pb-2">
 			<div class="flex gap-3 items-center">
 				<button
 					onclick={() => engine.skipBack(1)}
