@@ -25,3 +25,27 @@ body {
 	font-family: system-ui, -apple-system, sans-serif;
 	margin: 0;
 }
+
+/* Mobile: portrait phone */
+@media (max-width: 640px) and (orientation: portrait) {
+	:root {
+		--word-font-size: clamp(28px, 8vw, 48px);
+		--progress-height: 6px;
+	}
+}
+
+/* Mobile: landscape phone */
+@media (max-width: 920px) and (orientation: landscape) {
+	:root {
+		--word-font-size: clamp(32px, 6vh, 44px);
+		--progress-height: 6px;
+	}
+}
+
+/* Desktop default */
+@media (min-width: 921px) {
+	:root {
+		--word-font-size: 60px;
+		--progress-height: 4px;
+	}
+}
