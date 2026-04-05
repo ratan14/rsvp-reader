@@ -39,8 +39,15 @@ describe('calculateDelay', () => {
 			expect(calculateDelay('xxxxxxxxx', baseWpm, true, false)).toBe(260);
 		});
 
-		it('applies 1.3x for long words', () => {
-			expect(calculateDelay('extraordinary', baseWpm, true, false)).toBe(260);
+		it('applies 1.3x for 9-10 letter words', () => {
+			expect(calculateDelay('abcdefghij', baseWpm, true, false)).toBe(260);
+		});
+
+		it('applies steep ramp beyond 10 letters', () => {
+			// 13 letters: 1.3 + 3*0.15 = 1.75x → 350
+			expect(calculateDelay('extraordinary', baseWpm, true, false)).toBe(350);
+			// 15 letters: 1.3 + 5*0.15 = 2.05x → 410
+			expect(calculateDelay('congratulations', baseWpm, true, false)).toBe(410);
 		});
 	});
 

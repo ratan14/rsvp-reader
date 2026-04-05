@@ -3,7 +3,9 @@ import { isSentenceEnd, isClauseEnd, isNumeric } from './punctuation';
 function tierMultiplier(length: number): number {
 	if (length <= 2) return 0.9;
 	if (length <= 8) return 1.0;
-	return 1.3;
+	if (length <= 10) return 1.3;
+	// Beyond 10 letters: 1.3 base + 0.15 per extra letter (steep ramp)
+	return 1.3 + (length - 10) * 0.15;
 }
 
 /**
