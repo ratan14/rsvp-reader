@@ -242,6 +242,22 @@
 
 	<!-- Main content area -->
 	<div class="flex-1 flex min-h-0" class:flex-col={!layout.isWide}>
+		{#if layout.isWide}
+			<!-- WIDE: Left-side play/pause button -->
+			<button
+				onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
+				class="shrink-0 flex items-center justify-center cursor-pointer border-none"
+				style="width: 100px; background-color: var(--bg-surface); border-right: 1px solid var(--border);"
+				aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
+			>
+				{#if engine.status === 'playing'}
+					<svg width="48" height="48" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+				{:else}
+					<svg width="48" height="48" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
+				{/if}
+			</button>
+		{/if}
+
 		<!-- Word Display Area -->
 		<div
 			class="flex-1 flex items-center justify-center overflow-hidden relative"
@@ -292,7 +308,7 @@
 			<!-- WIDE: Right-side panel (WPM + joystick) -->
 			<div
 				class="flex flex-col items-center justify-center gap-2 py-2 px-2 shrink-0"
-				style="width: 80px; background-color: var(--bg-surface); border-left: 1px solid var(--border); overflow: visible;"
+				style="width: 100px; background-color: var(--bg-surface); border-left: 1px solid var(--border); overflow: visible;"
 			>
 				<div class="text-center">
 					<div class="text-base font-bold" style="color: var(--accent);">{engine.wpm}</div>
@@ -359,7 +375,7 @@
 
 	<!-- Wide layout: transport + progress bar overlaid at bottom of word area -->
 	{#if layout.isWide}
-		<div class="absolute bottom-0 left-0 right-[88px] flex items-center gap-4 px-4 pb-2">
+		<div class="absolute bottom-0 left-[108px] right-[108px] flex items-center gap-4 px-4 pb-2">
 			<div class="flex gap-3 items-center">
 				<button
 					onclick={() => engine.skipBack(1)}

@@ -220,7 +220,7 @@
 		touch-action: none;
 	}
 	.joystick-track.vertical {
-		width: 26px;
+		width: 36px;
 		height: 140px;
 	}
 	.joystick-track.horizontal {
