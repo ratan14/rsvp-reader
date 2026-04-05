@@ -317,25 +317,32 @@
 				<WpmJoystick orientation="vertical" wpm={engine.wpm} onWpmChange={handleJoystickWpm} />
 
 				<!-- Transport buttons -->
-				<div class="flex gap-[6px] items-center">
+				<div class="flex gap-3 items-center">
 					<button
 						onclick={() => engine.skipBack(1)}
-						class="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer border-2 text-[13px]"
-						style="background-color: var(--bg); border-color: var(--border); color: var(--text-muted);"
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
 						aria-label="Skip back"
-					>⏮</button>
+					>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
+					</button>
 					<button
 						onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-						class="w-[42px] h-[42px] rounded-full flex items-center justify-center cursor-pointer border-none text-[17px]"
-						style="background-color: var(--accent); color: white;"
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
 						aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-					>{engine.status === 'playing' ? '⏸' : '▶'}</button>
+					>
+						{#if engine.status === 'playing'}
+							<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+						{:else}
+							<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
+						{/if}
+					</button>
 					<button
 						onclick={() => engine.skipForward(1)}
-						class="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer border-2 text-[13px]"
-						style="background-color: var(--bg); border-color: var(--border); color: var(--text-muted);"
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
 						aria-label="Skip forward"
-					>⏭</button>
+					>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
+					</button>
 				</div>
 			</div>
 		{:else}
@@ -356,26 +363,33 @@
 				</div>
 
 				{#if mobile.isMobile}
-					<!-- Mobile portrait: bigger circular buttons -->
-					<div class="flex justify-center items-center gap-4 pb-3">
+					<!-- Mobile portrait: SVG triangle buttons -->
+					<div class="flex justify-center items-center gap-6 pb-3">
 						<button
 							onclick={() => engine.skipBack(1)}
-							class="w-12 h-12 rounded-full flex items-center justify-center cursor-pointer border-2 text-base"
-							style="background-color: var(--bg-surface); border-color: var(--border); color: var(--text-muted);"
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
 							aria-label="Skip back"
-						>⏮</button>
+						>
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
+						</button>
 						<button
 							onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-							class="w-14 h-14 rounded-full flex items-center justify-center cursor-pointer border-none text-xl"
-							style="background-color: var(--accent); color: white;"
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
 							aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-						>{engine.status === 'playing' ? '⏸' : '▶'}</button>
+						>
+							{#if engine.status === 'playing'}
+								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+							{:else}
+								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
+							{/if}
+						</button>
 						<button
 							onclick={() => engine.skipForward(1)}
-							class="w-12 h-12 rounded-full flex items-center justify-center cursor-pointer border-2 text-base"
-							style="background-color: var(--bg-surface); border-color: var(--border); color: var(--text-muted);"
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
 							aria-label="Skip forward"
-						>⏭</button>
+						>
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
+						</button>
 					</div>
 
 					<!-- Horizontal joystick + WPM -->
@@ -386,26 +400,33 @@
 						</div>
 					</div>
 				{:else}
-					<!-- Desktop: original controls -->
-					<div class="flex justify-center items-center gap-6 pb-6">
+					<!-- Desktop: SVG triangle controls -->
+					<div class="flex justify-center items-center gap-8 pb-6">
 						<button
 							onclick={() => engine.skipBack(1)}
-							class="text-2xl cursor-pointer bg-transparent border-none"
-							style="color: var(--text-muted);"
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
 							aria-label="Skip back"
-						>⏮</button>
+						>
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="11,19 2,12 11,5"/><polygon points="22,19 13,12 22,5"/></svg>
+						</button>
 						<button
 							onclick={() => engine.status === 'playing' ? engine.pause() : engine.play()}
-							class="text-4xl cursor-pointer bg-transparent border-none"
-							style="color: var(--accent);"
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
 							aria-label={engine.status === 'playing' ? 'Pause' : 'Play'}
-						>{engine.status === 'playing' ? '⏸' : '▶'}</button>
+						>
+							{#if engine.status === 'playing'}
+								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+							{:else}
+								<svg width="40" height="40" viewBox="0 0 24 24" fill="var(--accent)"><polygon points="6,3 20,12 6,21"/></svg>
+							{/if}
+						</button>
 						<button
 							onclick={() => engine.skipForward(1)}
-							class="text-2xl cursor-pointer bg-transparent border-none"
-							style="color: var(--text-muted);"
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
 							aria-label="Skip forward"
-						>⏭</button>
+						>
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
+						</button>
 					</div>
 				{/if}
 			</div>

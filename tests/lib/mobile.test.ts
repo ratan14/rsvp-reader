@@ -4,6 +4,7 @@ describe('isMobile', () => {
 	let matchMediaMock: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
+		vi.resetModules();
 		matchMediaMock = vi.fn().mockReturnValue({
 			matches: false,
 			addEventListener: vi.fn(),
@@ -26,7 +27,7 @@ describe('isMobile', () => {
 
 	it('returns true when screen matches mobile query', async () => {
 		matchMediaMock.mockImplementation((query: string) => ({
-			matches: query.includes('max-width: 920px'),
+			matches: query.includes('max-height: 500px') || query.includes('max-width: 640px'),
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn()
 		}));

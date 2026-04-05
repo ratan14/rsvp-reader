@@ -1,5 +1,8 @@
 export function createMobileDetector() {
-	const mobileQuery = matchMedia('(max-width: 920px)');
+	// A phone in landscape has short height. Detect mobile by:
+	// portrait: narrow width, landscape: short height.
+	// This avoids fixed-width cutoffs that break at certain resolutions.
+	const mobileQuery = matchMedia('(max-height: 500px), (max-width: 640px)');
 	const landscapeQuery = matchMedia('(orientation: landscape)');
 
 	let isMobile = $state(mobileQuery.matches);

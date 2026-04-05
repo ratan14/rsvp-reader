@@ -84,9 +84,9 @@
 		const maxTravel = (getTrackSize() - getThumbSize()) / 2;
 		const px = displacement * maxTravel;
 		if (orientation === 'vertical') {
-			return `transform: translateX(-50%) translateY(${-px}px);`;
+			return `transform: translateX(-50%) translateY(calc(-50% + ${-px}px));`;
 		}
-		return `transform: translateY(-50%) translateX(${px}px);`;
+		return `transform: translateY(-50%) translateX(calc(-50% + ${px}px));`;
 	});
 </script>
 
