@@ -118,10 +118,16 @@
 				exit();
 				break;
 			case 'ArrowLeft':
-				engine.skipBack(5);
+				e.preventDefault();
+				if (engine.status === 'playing') engine.pause();
+				if (e.shiftKey) engine.prevSentence();
+				else engine.skipBack(1);
 				break;
 			case 'ArrowRight':
-				engine.skipForward(5);
+				e.preventDefault();
+				if (engine.status === 'playing') engine.pause();
+				if (e.shiftKey) engine.nextSentence();
+				else engine.skipForward(1);
 				break;
 			case 'ArrowUp':
 				e.preventDefault();
@@ -132,9 +138,11 @@
 				adjustWpm(e.shiftKey ? -1 : -preferences.preferences.wpmStepSize);
 				break;
 			case 'Home':
+				if (engine.status === 'playing') engine.pause();
 				engine.seekTo(0);
 				break;
 			case 'End':
+				if (engine.status === 'playing') engine.pause();
 				engine.seekTo(1);
 				break;
 		}
@@ -199,22 +207,25 @@
 		</div>
 	{/if}
 
-	<!-- Word Display -->
-	<div class="flex-1 flex items-center justify-center">
-		<div class="text-center">
-			<!-- ORP Guide (top) -->
-			<div class="text-xs mb-1" style="color: var(--border); letter-spacing: {orpParts.before.length * 0.6}em;">
-				|
+	<!-- Word Display: ORP character is always at horizontal center -->
+	<div class="flex-1 flex items-center justify-center overflow-hidden">
+		<div class="relative" style="width: 100%; height: 120px;">
+			<!-- Fixed center guide (top tick) -->
+			<div class="absolute left-1/2 -translate-x-1/2" style="color: var(--accent); top: 0; font-size: 14px;">
+				▼
 			</div>
 
-			<!-- Word with ORP highlight -->
-			<div class="font-bold" style="font-size: 60px; line-height: 1.2;">
+			<!-- Word: positioned so ORP character aligns with center -->
+			<div
+				class="absolute whitespace-nowrap font-bold"
+				style="font-size: 60px; line-height: 1.2; font-family: 'Courier New', Courier, monospace; top: 24px; left: 50%; transform: translateX(calc(-0.5ch - {orpParts.before.length}ch));"
+			>
 				<span style="color: var(--text-muted);">{orpParts.before}</span><span style="color: var(--accent);">{orpParts.focus}</span><span style="color: var(--text-muted);">{orpParts.after}</span>
 			</div>
 
-			<!-- ORP Guide (bottom) -->
-			<div class="text-xs mt-1" style="color: var(--border); letter-spacing: {orpParts.before.length * 0.6}em;">
-				|
+			<!-- Fixed center guide (bottom tick) -->
+			<div class="absolute left-1/2 -translate-x-1/2" style="color: var(--accent); bottom: 0; font-size: 14px;">
+				▲
 			</div>
 		</div>
 	</div>
@@ -238,7 +249,7 @@
 		<!-- Transport Controls -->
 		<div class="flex justify-center items-center gap-6">
 			<button
-				onclick={() => engine.skipBack(5)}
+				onclick={() => engine.skipBack(1)}
 				class="text-2xl cursor-pointer bg-transparent border-none"
 				style="color: var(--text-muted);"
 				aria-label="Skip back"
@@ -254,7 +265,7 @@
 			</button>
 
 			<button
-				onclick={() => engine.skipForward(5)}
+				onclick={() => engine.skipForward(1)}
 				class="text-2xl cursor-pointer bg-transparent border-none"
 				style="color: var(--text-muted);"
 				aria-label="Skip forward"
