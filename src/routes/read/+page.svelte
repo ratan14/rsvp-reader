@@ -288,7 +288,7 @@
 			<!-- WIDE: Right-side panel (WPM + joystick) -->
 			<div
 				class="flex flex-col items-center justify-center gap-2 py-2 px-2 shrink-0"
-				style="width: 80px; background-color: var(--bg-surface); border-left: 1px solid var(--border);"
+				style="width: 80px; background-color: var(--bg-surface); border-left: 1px solid var(--border); overflow: visible;"
 			>
 				<div class="text-center">
 					<div class="text-base font-bold" style="color: var(--accent);">{engine.wpm}</div>
