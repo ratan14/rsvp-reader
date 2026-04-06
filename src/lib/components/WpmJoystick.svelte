@@ -1,5 +1,5 @@
 <script lang="ts">
-	const MAX_RATE = 50; // WPM per second at full displacement
+	const MAX_RATE = 100; // WPM per second at full displacement
 	const WPM_MIN = 100;
 	const WPM_MAX = 1000;
 	const UPDATE_INTERVAL_MS = 50; // 20fps update rate
