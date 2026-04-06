@@ -39,21 +39,23 @@
 		}
 
 		const id = btoa(encodeURIComponent(content.title + content.source)).slice(0, 32);
+		const existing = library.getById(id);
 
 		library.save({
 			id,
 			title: content.title,
 			source: content.source,
 			sourceRef,
-			currentIndex: 0,
+			currentIndex: existing?.currentIndex ?? 0,
 			totalWords: tokens.length,
 			chapters: content.chapters?.map((ch) => {
 				const ratio = content.text.length > 0 ? ch.charOffset / content.text.length : 0;
 				const wordOffset = Math.round(ratio * tokens.length);
 				return { title: ch.title, wordOffset };
 			}),
+			bookmarks: existing?.bookmarks,
 			lastRead: Date.now(),
-			wpm: preferences.preferences.defaultWpm,
+			wpm: existing?.wpm ?? preferences.preferences.defaultWpm,
 			cachedText: content.text
 		});
 

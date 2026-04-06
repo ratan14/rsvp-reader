@@ -57,12 +57,54 @@ export function createReaderEngine() {
 		currentIndex = 0;
 	}
 
+	let chapterStarts: number[] = [];
+
 	function loadTokens(newTokens: Token[]) {
 		if (timerId) clearTimeout(timerId);
 		timerId = null;
 		tokens = newTokens;
 		currentIndex = 0;
 		status = 'stopped';
+
+		chapterStarts = [];
+		let lastChapter = -1;
+		for (let i = 0; i < newTokens.length; i++) {
+			const ci = newTokens[i].chapterIndex;
+			if (ci !== undefined && ci !== lastChapter) {
+				chapterStarts.push(i);
+				lastChapter = ci;
+			}
+		}
+	}
+
+	function getCurrentChapterStartIdx(): number {
+		let idx = 0;
+		for (let i = 0; i < chapterStarts.length; i++) {
+			if (chapterStarts[i] <= currentIndex) idx = i;
+			else break;
+		}
+		return idx;
+	}
+
+	function nextChapter() {
+		if (chapterStarts.length < 2) return;
+		const idx = getCurrentChapterStartIdx();
+		if (idx + 1 < chapterStarts.length) {
+			currentIndex = skipParagraphs(chapterStarts[idx + 1], 1);
+		}
+	}
+
+	function prevChapter() {
+		if (chapterStarts.length < 2) return;
+		const idx = getCurrentChapterStartIdx();
+		const chapterStart = chapterStarts[idx];
+		if (currentIndex > chapterStart + 5) {
+			currentIndex = skipParagraphs(chapterStart, 1);
+		} else if (idx > 0) {
+			currentIndex = skipParagraphs(chapterStarts[idx - 1], 1);
+		} else {
+			currentIndex = 0;
+		}
 	}
 
 	function seekTo(progress: number) {
@@ -169,6 +211,9 @@ export function createReaderEngine() {
 		skipBack,
 		nextSentence,
 		prevSentence,
+		nextChapter,
+		prevChapter,
+		get hasChapters() { return chapterStarts.length > 1; },
 		destroy
 	};
 }

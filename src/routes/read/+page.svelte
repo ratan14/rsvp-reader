@@ -9,7 +9,7 @@
 	import { createThemeStore } from '$lib/theme/theme.svelte';
 	import { createLayoutDetector } from '$lib/layout.svelte';
 	import WpmJoystick from '$lib/components/WpmJoystick.svelte';
-	import type { LibraryEntry, Chapter } from '$lib/types';
+	import type { LibraryEntry, Chapter, Bookmark } from '$lib/types';
 
 	const library = createLibraryStore();
 	const preferences = createPreferencesStore();
@@ -23,6 +23,9 @@
 	let storageWarning = $state('');
 	let showInfoBar = $state(false);
 	let infoBarTimeout: ReturnType<typeof setTimeout> | null = null;
+	let showBookmarks = $state(false);
+	let bookmarkFeedback = $state(false);
+	let bookmarkFeedbackTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	const layout = createLayoutDetector();
 
@@ -47,6 +50,10 @@
 
 	let progressPercent = $derived(Math.round(engine.progress * 100));
 
+	let sortedBookmarks = $derived(
+		[...(entry?.bookmarks ?? [])].sort((a, b) => a.index - b.index)
+	);
+
 	onMount(() => {
 		const id = $page.url.searchParams.get('id');
 		if (!id) {
@@ -62,7 +69,9 @@
 
 		const contentChapters: Chapter[] | undefined = entry.chapters?.map((ch) => ({
 			title: ch.title,
-			charOffset: 0
+			charOffset: entry.totalWords > 0
+				? Math.round((ch.wordOffset / entry.totalWords) * entry.cachedText.length)
+				: 0
 		}));
 
 		const tokens = parseText(entry.cachedText, contentChapters);
@@ -77,6 +86,11 @@
 
 		saveInterval = setInterval(saveProgress, 5000);
 
+		// Save on visibility change / page unload (more reliable than onDestroy on mobile)
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		window.addEventListener('pagehide', handlePageHide);
+		window.addEventListener('beforeunload', handlePageHide);
+
 		// Request fullscreen on mobile/touch devices
 		const el = document.documentElement as any;
 		(el.requestFullscreen || el.webkitRequestFullscreen)?.call(el).catch(() => {});
@@ -86,11 +100,15 @@
 		saveProgress();
 		engine.destroy();
 		layout.destroy();
+		document.removeEventListener('visibilitychange', handleVisibilityChange);
+		window.removeEventListener('pagehide', handlePageHide);
+		window.removeEventListener('beforeunload', handlePageHide);
 		if (saveInterval) clearInterval(saveInterval);
 		if (pulseTimeout) clearTimeout(pulseTimeout);
 		if (infoBarTimeout) clearTimeout(infoBarTimeout);
 		if (rewindTapTimeout) clearTimeout(rewindTapTimeout);
 		if (rewindResumeTimeout) clearTimeout(rewindResumeTimeout);
+		if (bookmarkFeedbackTimeout) clearTimeout(bookmarkFeedbackTimeout);
 	});
 
 	function saveProgress() {
@@ -160,6 +178,18 @@
 				if (engine.status === 'playing') engine.pause();
 				engine.seekTo(1);
 				break;
+			case 'PageUp':
+				e.preventDefault();
+				handlePrevChapter();
+				break;
+			case 'PageDown':
+				e.preventDefault();
+				handleNextChapter();
+				break;
+			case 'KeyB':
+				e.preventDefault();
+				addBookmark();
+				break;
 		}
 	}
 
@@ -227,6 +257,57 @@
 	function toggleThemeStopPropagation(e: MouseEvent) {
 		e.stopPropagation();
 		theme.toggle();
+	}
+
+	function handleVisibilityChange() {
+		if (document.hidden) saveProgress();
+	}
+
+	function handlePageHide() {
+		saveProgress();
+	}
+
+	function handlePrevChapter() {
+		if (engine.status === 'playing') engine.pause();
+		addBookmark(true);
+		engine.prevChapter();
+	}
+
+	function handleNextChapter() {
+		if (engine.status === 'playing') engine.pause();
+		addBookmark(true);
+		engine.nextChapter();
+	}
+
+	function addBookmark(auto = false) {
+		if (!entry || engine.tokens.length === 0) return;
+		const bookmarks = entry.bookmarks ?? [];
+		if (bookmarks.some(b => b.index === engine.currentIndex)) return;
+		const pct = Math.round(engine.progress * 100);
+		const label = currentChapter ? `${currentChapter} · ${pct}%` : `${pct}%`;
+		entry.bookmarks = [...bookmarks, {
+			index: engine.currentIndex,
+			label,
+			timestamp: Date.now()
+		}];
+		saveProgress();
+		if (!auto) {
+			bookmarkFeedback = true;
+			if (bookmarkFeedbackTimeout) clearTimeout(bookmarkFeedbackTimeout);
+			bookmarkFeedbackTimeout = setTimeout(() => { bookmarkFeedback = false; }, 800);
+		}
+	}
+
+	function navigateToBookmark(bm: Bookmark) {
+		if (engine.status === 'playing') engine.pause();
+		engine.seekTo(bm.index / engine.tokens.length);
+		showBookmarks = false;
+	}
+
+	function deleteBookmark(timestamp: number) {
+		if (!entry) return;
+		entry.bookmarks = (entry.bookmarks ?? []).filter(b => b.timestamp !== timestamp);
+		saveProgress();
 	}
 </script>
 
@@ -319,6 +400,49 @@
 				</button>
 			{/if}
 
+			<!-- Bookmarks panel -->
+			{#if showBookmarks}
+				<div
+					class="absolute bottom-2 left-2 right-2 z-40 rounded-lg p-3 max-h-[50%] overflow-y-auto"
+					style="background-color: var(--bg-surface); border: 1px solid var(--border);"
+					onclick={(e) => e.stopPropagation()}
+				>
+					<div class="flex justify-between items-center mb-2">
+						<span class="text-xs font-semibold" style="color: var(--text);">Bookmarks</span>
+						<div class="flex gap-2">
+							<button
+								onclick={() => addBookmark()}
+								class="text-xs cursor-pointer border-none rounded px-2 py-1"
+								style="background-color: var(--accent); color: white;"
+							>+ Add here</button>
+							<button
+								onclick={() => showBookmarks = false}
+								class="cursor-pointer bg-transparent border-none text-xs"
+								style="color: var(--text-muted);"
+							>✕</button>
+						</div>
+					</div>
+					{#if sortedBookmarks.length === 0}
+						<div class="text-xs py-2" style="color: var(--text-muted);">No bookmarks yet</div>
+					{:else}
+						{#each sortedBookmarks as bm}
+							<div class="flex items-center justify-between py-1.5" style="border-top: 1px solid var(--border);">
+								<button
+									onclick={() => navigateToBookmark(bm)}
+									class="flex-1 text-left cursor-pointer bg-transparent border-none text-xs truncate"
+									style="color: var(--text);"
+								>{bm.label}</button>
+								<button
+									onclick={() => deleteBookmark(bm.timestamp)}
+									class="cursor-pointer bg-transparent border-none text-xs px-2 shrink-0"
+									style="color: var(--text-muted);"
+								>✕</button>
+							</div>
+						{/each}
+					{/if}
+				</div>
+			{/if}
+
 			<!-- Word with ORP centering -->
 			<div class="flex flex-col items-center" style="width: 100%;">
 				<div style="color: var(--accent); font-size: 14px;">▼</div>
@@ -351,7 +475,7 @@
 			<div style="border-top: 1px solid var(--border);">
 				<!-- Progress Bar -->
 				<div
-					class="cursor-pointer mx-3 mt-4 mb-4 rounded-full"
+					class="cursor-pointer mx-3 mt-4 mb-4 rounded-full relative"
 					style="background-color: var(--border); height: var(--progress-height, 4px);"
 					role="progressbar"
 					aria-valuenow={progressPercent}
@@ -361,10 +485,22 @@
 						class="rounded-full transition-all duration-100 h-full"
 						style="background-color: var(--accent); width: {engine.progress * 100}%;"
 					></div>
+					{#each sortedBookmarks as bm}
+						<div class="absolute" style="left: {(bm.index / engine.tokens.length) * 100}%; top: -3px; bottom: -3px; width: 2px; background-color: var(--text); opacity: 0.5; border-radius: 1px;"></div>
+					{/each}
 				</div>
 
 				<!-- Transport buttons -->
-				<div class="flex justify-center items-center gap-6 pb-3">
+				<div class="flex justify-center items-center gap-4 pb-3">
+					{#if engine.hasChapters}
+						<button
+							onclick={handlePrevChapter}
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
+							aria-label="Previous chapter"
+						>
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="var(--text-muted)"><rect x="3" y="5" width="3" height="14"/><polygon points="19,5 8,12 19,19"/></svg>
+						</button>
+					{/if}
 					<button
 						onclick={() => engine.skipBack(1)}
 						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-3"
@@ -390,13 +526,36 @@
 					>
 						<svg width="28" height="28" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
 					</button>
+					{#if engine.hasChapters}
+						<button
+							onclick={handleNextChapter}
+							class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
+							aria-label="Next chapter"
+						>
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="5,5 16,12 5,19"/><rect x="18" y="5" width="3" height="14"/></svg>
+						</button>
+					{/if}
 				</div>
 
-				<!-- Horizontal joystick + WPM -->
-				<div class="flex flex-col items-center gap-2 pb-4">
-					<WpmJoystick orientation="horizontal" wpm={engine.wpm} onWpmChange={handleJoystickWpm} />
-					<div class="text-sm" style="color: var(--text-muted);">
-						<span class="text-lg font-bold" style="color: var(--accent);">{engine.wpm}</span> WPM
+				<!-- Bookmark + Horizontal joystick + WPM -->
+				<div class="flex items-center gap-2 pb-4 px-3">
+					<button
+						onclick={(e) => { e.stopPropagation(); showBookmarks = !showBookmarks; }}
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2 relative"
+						aria-label="Bookmarks"
+					>
+						<svg width="22" height="22" viewBox="0 0 24 24" fill="{bookmarkFeedback ? 'var(--accent)' : 'none'}" stroke="var(--text-muted)" stroke-width="2">
+							<path d="M6 3h12v18l-6-4-6 4V3z"/>
+						</svg>
+						{#if (entry?.bookmarks ?? []).length > 0}
+							<span class="absolute -top-1 -right-1 text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center" style="background-color: var(--accent); color: white;">{(entry?.bookmarks ?? []).length}</span>
+						{/if}
+					</button>
+					<div class="flex-1 flex flex-col items-center gap-2">
+						<WpmJoystick orientation="horizontal" wpm={engine.wpm} onWpmChange={handleJoystickWpm} />
+						<div class="text-sm" style="color: var(--text-muted);">
+							<span class="text-lg font-bold" style="color: var(--accent);">{engine.wpm}</span> WPM
+						</div>
 					</div>
 				</div>
 			</div>
@@ -406,7 +565,16 @@
 	<!-- Wide layout: transport + progress bar overlaid at bottom of word area -->
 	{#if layout.isWide}
 		<div class="absolute bottom-0 left-0 right-[108px] flex items-center gap-4 px-4 pb-2">
-			<div class="flex gap-3 items-center">
+			<div class="flex gap-2 items-center">
+				{#if engine.hasChapters}
+					<button
+						onclick={handlePrevChapter}
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-1"
+						aria-label="Previous chapter"
+					>
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="var(--text-muted)"><rect x="3" y="5" width="3" height="14"/><polygon points="19,5 8,12 19,19"/></svg>
+					</button>
+				{/if}
 				<button
 					onclick={() => engine.skipBack(1)}
 					class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2"
@@ -432,9 +600,30 @@
 				>
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="13,19 22,12 13,5"/><polygon points="2,19 11,12 2,5"/></svg>
 				</button>
+				{#if engine.hasChapters}
+					<button
+						onclick={handleNextChapter}
+						class="cursor-pointer bg-transparent border-none flex items-center justify-center p-1"
+						aria-label="Next chapter"
+					>
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="var(--text-muted)"><polygon points="5,5 16,12 5,19"/><rect x="18" y="5" width="3" height="14"/></svg>
+					</button>
+				{/if}
+				<button
+					onclick={(e) => { e.stopPropagation(); showBookmarks = !showBookmarks; }}
+					class="cursor-pointer bg-transparent border-none flex items-center justify-center p-2 relative"
+					aria-label="Bookmarks"
+				>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="{bookmarkFeedback ? 'var(--accent)' : 'none'}" stroke="var(--text-muted)" stroke-width="2">
+						<path d="M6 3h12v18l-6-4-6 4V3z"/>
+					</svg>
+					{#if (entry?.bookmarks ?? []).length > 0}
+						<span class="absolute -top-1 -right-1 text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center" style="background-color: var(--accent); color: white;">{(entry?.bookmarks ?? []).length}</span>
+					{/if}
+				</button>
 			</div>
 			<div
-				class="flex-1 cursor-pointer rounded-full"
+				class="flex-1 cursor-pointer rounded-full relative"
 				style="background-color: var(--border); height: 6px;"
 				role="progressbar"
 				aria-valuenow={progressPercent}
@@ -444,6 +633,9 @@
 					class="rounded-full transition-all duration-100 h-full"
 					style="background-color: var(--accent); width: {engine.progress * 100}%;"
 				></div>
+				{#each sortedBookmarks as bm}
+					<div class="absolute" style="left: {(bm.index / engine.tokens.length) * 100}%; top: -3px; bottom: -3px; width: 2px; background-color: var(--text); opacity: 0.5; border-radius: 1px;"></div>
+				{/each}
 			</div>
 		</div>
 	{/if}

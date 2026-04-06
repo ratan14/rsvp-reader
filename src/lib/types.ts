@@ -31,6 +31,7 @@ export interface LibraryEntry {
 	currentIndex: number;
 	totalWords: number;
 	chapters?: LibraryChapter[];
+	bookmarks?: Bookmark[];
 	lastRead: number;
 	wpm: number;
 	cachedText: string;
@@ -51,5 +52,11 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
 	pauseAtPunctuation: true,
 	wpmStepSize: 5
 };
+
+export interface Bookmark {
+	index: number;
+	label: string;
+	timestamp: number;
+}
 
 export type ReaderStatus = 'stopped' | 'playing' | 'paused';
