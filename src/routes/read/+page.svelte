@@ -232,8 +232,8 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div
-	class="h-dvh flex flex-col select-none relative"
-	style="background-color: var(--bg); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);"
+	class="h-screen flex flex-col select-none relative read-container"
+	style="background-color: var(--bg);"
 	onwheel={handleWheel}
 >
 	<!-- Info bar: always visible on large screens, tap-to-reveal on small -->
@@ -281,7 +281,7 @@
 			<!-- Small screen: overlay info bar on tap -->
 			{#if layout.isSmall && showInfoBar}
 				<div
-					class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 py-2 text-xs z-10"
+					class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 py-2 text-xs z-20"
 					style="background-color: rgba(26,26,46,0.9); color: var(--text-muted); backdrop-filter: blur(4px);"
 				>
 					<button
@@ -307,13 +307,13 @@
 				<button
 					onclick={handleRewindTap}
 					class="absolute z-10 cursor-pointer border-none rounded-2xl flex items-center justify-center"
-					style="top: 10px; left: 10px; width: 72px; height: 72px; background-color: var(--bg-surface); border: 1px solid var(--border);"
+					style="top: 10px; left: 10px; width: 72px; height: 72px; background-color: #3a3a5e; border: 1px solid var(--border);"
 					aria-label="Rewind to start of sentence"
 				>
 					<!-- Circular rewind arrow: arc from right going counter-clockwise, arrow pointing left -->
 					<svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-						<path d="M 8 4.5 A 8.5 8.5 0 1 1 4 12" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-						<polyline points="8,1 4.5,4.5 8,8" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+						<path d="M 8 4.5 A 8.5 8.5 0 1 1 4 12" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+						<polyline points="8,1 4.5,4.5 8,8" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 					</svg>
 				</button>
 			{/if}

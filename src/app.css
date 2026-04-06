@@ -26,6 +26,17 @@ body {
 	margin: 0;
 }
 
+/* Safe area: transparent border pushes content (including absolute children)
+   inward, while background still fills to the screen edges. */
+.read-container {
+	border: 0 solid transparent;
+	border-width: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+
+:root:fullscreen .read-container {
+	border-width: max(env(safe-area-inset-top, 0px), 12px) max(env(safe-area-inset-right, 0px), 8px) max(env(safe-area-inset-bottom, 0px), 12px) max(env(safe-area-inset-left, 0px), 8px);
+}
+
 /* Mobile: portrait phone (narrow width) */
 @media (max-width: 640px) {
 	:root {
