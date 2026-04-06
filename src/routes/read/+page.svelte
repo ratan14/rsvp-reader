@@ -48,6 +48,38 @@
 		};
 	});
 
+	let wordStrip = $derived.by(() => {
+		const ci = engine.currentIndex;
+		const toks = engine.tokens;
+		if (toks.length === 0 || ci >= toks.length) return { words: [] as Array<{text: string; isCurrent: boolean; distance: number}>, orpCharOffset: 0 };
+
+		const RANGE = 30;
+		const startIdx = Math.max(0, ci - RANGE);
+		const endIdx = Math.min(toks.length - 1, ci + RANGE);
+
+		const words: Array<{text: string; isCurrent: boolean; distance: number}> = [];
+		let currentWordIdx = 0;
+
+		for (let i = startIdx; i <= endIdx; i++) {
+			if (toks[i].isParagraphBreak) continue;
+			if (i === ci) currentWordIdx = words.length;
+			words.push({ text: toks[i].text, isCurrent: i === ci, distance: 0 });
+		}
+
+		for (let j = 0; j < words.length; j++) {
+			words[j].distance = Math.abs(j - currentWordIdx);
+		}
+
+		const PAD = 3;
+		let charsBeforeOrp = 0;
+		for (let j = 0; j < currentWordIdx; j++) {
+			charsBeforeOrp += words[j].text.length + 1;
+		}
+		charsBeforeOrp += PAD + (toks[ci]?.orp ?? 0);
+
+		return { words, orpCharOffset: charsBeforeOrp };
+	});
+
 	let progressPercent = $derived(Math.round(engine.progress * 100));
 
 	let sortedBookmarks = $derived(
@@ -69,8 +101,8 @@
 
 		const contentChapters: Chapter[] | undefined = entry.chapters?.map((ch) => ({
 			title: ch.title,
-			charOffset: entry.totalWords > 0
-				? Math.round((ch.wordOffset / entry.totalWords) * entry.cachedText.length)
+			charOffset: entry!.totalWords > 0
+				? Math.round((ch.wordOffset / entry!.totalWords) * entry!.cachedText.length)
 				: 0
 		}));
 
@@ -443,16 +475,14 @@
 				</div>
 			{/if}
 
-			<!-- Word with ORP centering -->
+			<!-- Word strip with context -->
 			<div class="flex flex-col items-center" style="width: 100%;">
 				<div style="color: var(--accent); font-size: 14px;">▼</div>
-				<div class="relative" style="width: 100%;">
+				<div class="relative overflow-hidden" style="width: 100%;">
 					<div
-						class="whitespace-nowrap font-bold"
-						style="font-size: var(--word-font-size, 60px); line-height: 1.4; font-family: 'Courier New', Courier, monospace; position: relative; left: 50%; transform: translateX(calc(-0.5ch - {orpParts.before.length}ch));"
-					>
-						<span style="color: var(--text-muted);">{orpParts.before}</span><span style="color: var(--accent);">{orpParts.focus}</span><span style="color: var(--text-muted);">{orpParts.after}</span>
-					</div>
+						class="whitespace-pre font-bold"
+						style="font-size: var(--word-font-size, 60px); line-height: 1.4; font-family: 'Courier New', Courier, monospace; position: relative; left: 50%; transform: translateX(calc(-0.5ch - {wordStrip.orpCharOffset}ch));"
+					>{#each wordStrip.words as word, i}{#if i > 0}{' '}{/if}{#if word.isCurrent}{'   '}<span style="color: var(--text-muted);">{orpParts.before}</span><span style="color: var(--accent);">{orpParts.focus}</span><span style="color: var(--text-muted);">{orpParts.after}</span>{'   '}{:else}<span style="opacity: 0.07; color: var(--text-muted);">{word.text}</span>{/if}{/each}</div>
 				</div>
 				<div style="color: var(--accent); font-size: 14px;">▲</div>
 			</div>
