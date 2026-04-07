@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { importTextFile } from '$lib/importers/text-importer';
 	import { importPastedText } from '$lib/importers/paste-importer';
@@ -21,6 +22,25 @@
 	let recentEntries = $derived(
 		[...library.entries].sort((a, b) => b.lastRead - a.lastRead).slice(0, 3)
 	);
+
+	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+
+		const url = params.get('url');
+		if (url) {
+			urlInput = url;
+			handleUrl();
+			return;
+		}
+
+		if (params.get('source') === 'text' && window.location.hash.length > 1) {
+			const text = decodeURIComponent(window.location.hash.slice(1));
+			if (text.trim()) {
+				pasteText = text;
+				handlePaste();
+			}
+		}
+	});
 
 	function sourceIcon(source: string): string {
 		switch (source) {
