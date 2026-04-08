@@ -23,26 +23,27 @@
 		[...library.entries].sort((a, b) => b.lastRead - a.lastRead).slice(0, 3)
 	);
 
-	onMount(async () => {
+	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
 		const source = params.get('source');
 
-		if (source === 'html' && window.location.hash.length > 1) {
-			const html = decodeURIComponent(window.location.hash.slice(1));
-			const pageUrl = params.get('url') || 'unknown';
+		if (source === 'extension') {
 			loading = true;
-			try {
-				const article = extractArticle(html, pageUrl);
-				if (!article) {
-					error = 'Could not extract article content from this page.';
-					return;
+			window.addEventListener('message', async (event: MessageEvent) => {
+				if (event.data?.type !== 'flowvea-extension-html') return;
+				try {
+					const article = extractArticle(event.data.html, event.data.url);
+					if (!article) {
+						error = 'Could not extract article content from this page.';
+						return;
+					}
+					await handleContent({ title: article.title, text: article.text, source: 'url' }, event.data.url);
+				} catch (e) {
+					error = e instanceof Error ? e.message : 'Failed to extract article content.';
+				} finally {
+					loading = false;
 				}
-				await handleContent({ title: article.title, text: article.text, source: 'url' }, pageUrl);
-			} catch (e) {
-				error = e instanceof Error ? e.message : 'Failed to extract article content.';
-			} finally {
-				loading = false;
-			}
+			}, { once: true });
 			return;
 		}
 
