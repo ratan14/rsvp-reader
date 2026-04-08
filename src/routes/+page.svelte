@@ -29,6 +29,8 @@
 
 		if (source === 'extension') {
 			loading = true;
+
+			// Listen for HTML from the content script
 			window.addEventListener('message', async (event: MessageEvent) => {
 				if (event.data?.type !== 'flowvea-extension-html') return;
 				try {
@@ -44,6 +46,9 @@
 					loading = false;
 				}
 			}, { once: true });
+
+			// Tell the content script we're ready (in case it sent before we were listening)
+			window.postMessage({ type: 'flowvea-extension-ready' }, '*');
 			return;
 		}
 
