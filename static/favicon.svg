@@ -8,9 +8,9 @@
   <!-- Background rounded square -->
   <rect width="128" height="128" rx="24" fill="url(#bg)"/>
   <!-- Eye shape (outer) -->
-  <path d="M20 64 C20 64, 44 32, 64 32 C84 32, 108 64, 108 64 C108 64, 84 96, 64 96 C44 96, 20 64, 20 64Z" fill="none" stroke="#ff6b6b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 64 C20 64, 44 32, 64 32 C84 32, 108 64, 108 64 C108 64, 84 96, 64 96 C44 96, 20 64, 20 64Z" fill="none" stroke="#ff6b6b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
   <!-- Iris -->
-  <circle cx="64" cy="64" r="18" fill="none" stroke="#ff6b6b" stroke-width="3"/>
+  <circle cx="64" cy="64" r="18" fill="none" stroke="#ff6b6b" stroke-width="5"/>
   <!-- Pupil / focus point (the ORP dot) -->
   <circle cx="64" cy="64" r="6" fill="#ff6b6b"/>
   <!-- Speed lines (left) -->
