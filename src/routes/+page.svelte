@@ -4,7 +4,7 @@
 	import { importTextFile } from '$lib/importers/text-importer';
 	import { importPastedText } from '$lib/importers/paste-importer';
 	import { importEpub } from '$lib/importers/epub-importer';
-	import { importUrl } from '$lib/importers/url-importer';
+	import { importUrl, extractArticle } from '$lib/importers/url-importer';
 	import { parseText } from '$lib/engine/parser';
 	import { createLibraryStore } from '$lib/storage/library.svelte';
 	import { createPreferencesStore } from '$lib/storage/preferences.svelte';
@@ -23,8 +23,28 @@
 		[...library.entries].sort((a, b) => b.lastRead - a.lastRead).slice(0, 3)
 	);
 
-	onMount(() => {
+	onMount(async () => {
 		const params = new URLSearchParams(window.location.search);
+		const source = params.get('source');
+
+		if (source === 'html' && window.location.hash.length > 1) {
+			const html = decodeURIComponent(window.location.hash.slice(1));
+			const pageUrl = params.get('url') || 'unknown';
+			loading = true;
+			try {
+				const article = extractArticle(html, pageUrl);
+				if (!article) {
+					error = 'Could not extract article content from this page.';
+					return;
+				}
+				await handleContent({ title: article.title, text: article.text, source: 'url' }, pageUrl);
+			} catch (e) {
+				error = e instanceof Error ? e.message : 'Failed to extract article content.';
+			} finally {
+				loading = false;
+			}
+			return;
+		}
 
 		const url = params.get('url');
 		if (url) {
@@ -33,7 +53,7 @@
 			return;
 		}
 
-		if (params.get('source') === 'text' && window.location.hash.length > 1) {
+		if (source === 'text' && window.location.hash.length > 1) {
 			const text = decodeURIComponent(window.location.hash.slice(1));
 			if (text.trim()) {
 				pasteText = text;
